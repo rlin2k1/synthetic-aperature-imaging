@@ -24,11 +24,11 @@ def main():
     while(cap.isOpened()):
         # # Capture frame-by-frame
         ret, f = cap.read()
-        frame = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
 
         if ret == True:
+            frame = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
             # Display the resulting frame
-            cv2.imshow('Frame',frame)
+            #cv2.imshow('Frame',frame)
             img = frame
             template = cv2.imread('template.png',0)
             w, h = template.shape[::-1]
@@ -37,14 +37,17 @@ def main():
             meth = 'cv2.TM_CCOEFF_NORMED'
             method = eval(meth)
             # Apply template Matching
-            res = cv2.matchTemplate(img[135:640,270:700],template,method)
+            #img[135:640,270:700]
+            res = cv2.matchTemplate(img[270:700,135:640],template,method)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            top_left = (max_loc[0]+270, max_loc[1]+135)
+            top_left = (max_loc[0]+135, max_loc[1]+270)
             bottom_right = (top_left[0] + w, top_left[1] + h)
+            #top_left = (max_loc[0], max_loc[1])
+            #bottom_right = (top_left[0] + w, top_left[1] + h)
             
             print(top_left)
             print(bottom_right)
-            cv2.rectangle(img,(135,270), (640,700), 255, 2)
+            #cv2.rectangle(img,(135,270), (640,700), 255, 2)
             cv2.rectangle(img,top_left, bottom_right, 255, 2)
             #cv2.rectangle(f,(135,270), (640,700), (0,0,255), 2)
             #cv2.rectangle(f,top_left, bottom_right, (255,0,0), 2)
@@ -62,7 +65,7 @@ def main():
             plt.suptitle(meth)'''
             plt.savefig('cross_cor.png')
             plt.show()
-            cv2.waitKey(0) #Press Enter for Next Object in the Image
+            #cv2.waitKey(0) #Press Enter for Next Object in the Image
             sys.exit()
         else: 
             break
