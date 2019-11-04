@@ -13,6 +13,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 import sys
 
+def warpImg(img, xshift, yshift):
+    return 
+
+
 def main():
     cap = cv2.VideoCapture('IMG_0955.MOV')
  
@@ -20,6 +24,13 @@ def main():
     if (cap.isOpened()== False): 
         print("Error opening video stream or file")
     
+    # stores the shift locations
+    locs_x = []
+    locs_y = []
+
+    frames = []
+    tl = []
+    f0 = []
     # Read until video is completed
     while(cap.isOpened()):
         # # Capture frame-by-frame
@@ -37,17 +48,28 @@ def main():
             meth = 'cv2.TM_CCOEFF_NORMED'
             method = eval(meth)
             # Apply template Matching
-            #img[135:640,270:700]
-            res = cv2.matchTemplate(img[270:700,135:640],template,method)
+            #img[270:700,135:640]
+            print(img.shape)
+            print(template.shape)
+            res = cv2.matchTemplate(img,template,method)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            top_left = (max_loc[0]+135, max_loc[1]+270)
+            #top_left = (max_loc[0]+135, max_loc[1]+270)
+            top_left = (max_loc[0], max_loc[1])
+            if len(tl) == 0:
+                tl += [top_left[0], top_left[1]]
+                f0 = f
             bottom_right = (top_left[0] + w, top_left[1] + h)
-            #top_left = (max_loc[0], max_loc[1])
+            print(np.array([[1, 0, top_left[0] -tl[0]], [0, 1, top_left[1] - tl[1]]]))
+            s = (f.shape[::-1][1], f.shape[::-1][2])
+            frames.append(cv2.warpAffine(f, np.float32([[1, 0, -(top_left[0] - tl[0])], [0, 1, -(top_left[1] - tl[1])]]), s))
+            #
             #bottom_right = (top_left[0] + w, top_left[1] + h)
-            
+            locs_x.append(top_left[0])
+            locs_y.append(top_left[1])
             print(top_left)
             print(bottom_right)
             #cv2.rectangle(img,(135,270), (640,700), 255, 2)
+            '''
             cv2.rectangle(img,top_left, bottom_right, 255, 2)
             #cv2.rectangle(f,(135,270), (640,700), (0,0,255), 2)
             #cv2.rectangle(f,top_left, bottom_right, (255,0,0), 2)
@@ -58,15 +80,17 @@ def main():
             plt.imshow(res,cmap = 'gray')
             plt.xlabel("Pixel location in X Direction")
             plt.ylabel("Pixel location in Y Direction")
-            plt.colorbar()
+            plt.colorbar()'''
             '''plt.title('Matching Result') #, plt.xticks([]), plt.yticks([])
             plt.subplot(122),plt.imshow(img,cmap = 'gray')
             plt.title('Detected Point'), plt.xticks([]), plt.yticks([])
             plt.suptitle(meth)'''
-            plt.savefig('cross_cor.png')
+            #plt.savefig('cross_cor.png')
+            '''
             plt.show()
             #cv2.waitKey(0) #Press Enter for Next Object in the Image
             sys.exit()
+            '''
         else: 
             break
 
@@ -76,6 +100,19 @@ def main():
     cap.release()
     # Closes all the frames
     cv2.destroyAllWindows()
+    plt.plot(locs_x, locs_y)
+    plt.ylabel("Y Pixel Shift")
+    plt.xlabel("X Pixel Shift")
+    #plt.show()
+    #plt.savefig("shifts.png")
+    npavg = np.average(frames, axis=0)
+    print(npavg)
+    cv2.imshow("Shifted", np.sum(frames, axis=0))
+    print(f0)
+    print(npavg.shape)
+    print(f0.shape)
+    cv2.imshow("Og", f0)
+    cv2.waitKey(0)
 
 if __name__ == "__main__":
     main()
