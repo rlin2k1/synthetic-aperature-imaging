@@ -41,7 +41,7 @@ def main():
             # Display the resulting frame
             #cv2.imshow('Frame',frame)
             img = frame
-            template = cv2.imread('template6.png',0)
+            template = cv2.imread('template5.png',0)
             w, h = template.shape[::-1]
             print("{},{}".format(w,h))
 
@@ -107,11 +107,14 @@ def main():
     plt.xlabel("X Pixel Shift")
     #plt.show()
     #plt.savefig("shifts.png")
-    npsum = np.sum(frames, axis=0)
-    print(npsum)
+    npavg = np.average(frames, axis=0)
+    print(npavg)
+    # So it appears good in the displayed image
     cv2.imshow("Shifted", np.sum(frames, axis=0) * 3)
+    # What's actually written should involve the average of the pixels
+    cv2.imwrite("shifted.png", npavg)
     print(f0)
-    print(npsum.shape)
+    print(npavg.shape)
     print(f0.shape)
     cv2.imshow("Og", f0)
     cv2.waitKey(0)
