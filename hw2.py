@@ -18,7 +18,7 @@ def warpImg(img, xshift, yshift):
 
 
 def main():
-    cap = cv2.VideoCapture('IMG_0955.MOV')
+    cap = cv2.VideoCapture('IMG_0961.MOV')
  
     # Check if camera opened successfully
     if (cap.isOpened()== False): 
@@ -41,29 +41,31 @@ def main():
             # Display the resulting frame
             #cv2.imshow('Frame',frame)
             img = frame
-            template = cv2.imread('template.png',0)
+            template = cv2.imread('template6.png',0)
             w, h = template.shape[::-1]
             print("{},{}".format(w,h))
 
             meth = 'cv2.TM_CCOEFF_NORMED'
             method = eval(meth)
             # Apply template Matching
+            # window bounds in the old movie
             #img[270:700,135:640]
+            # window bounds in the new movie
+            tlx, tly, brx, bry = 150, 300, 540, 700
             print(img.shape)
             print(template.shape)
-            res = cv2.matchTemplate(img,template,method)
+            res = cv2.matchTemplate(img[tlx:brx, tly:bry],template,method)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            #top_left = (max_loc[0]+135, max_loc[1]+270)
-            top_left = (max_loc[0], max_loc[1])
+            top_left = (max_loc[0]+tlx, max_loc[1]+tly)
+            #top_left = (max_loc[0], max_loc[1])
             if len(tl) == 0:
                 tl += [top_left[0], top_left[1]]
                 f0 = f
             bottom_right = (top_left[0] + w, top_left[1] + h)
-            print(np.array([[1, 0, top_left[0] -tl[0]], [0, 1, top_left[1] - tl[1]]]))
-            s = (f.shape[::-1][1], f.shape[::-1][2])
-            frames.append(cv2.warpAffine(f, np.float32([[1, 0, -(top_left[0] - tl[0])], [0, 1, -(top_left[1] - tl[1])]]), s))
-            #
-            #bottom_right = (top_left[0] + w, top_left[1] + h)
+            xshift, yshift = -(top_left[0] - tl[0]), -(top_left[1] - tl[1])
+            M = np.float32([[1, 0, xshift], [0, 1, yshift]])
+            print(M)
+            frames.append(cv2.warpAffine(f, M, f.shape[::-1][1:]))
             locs_x.append(top_left[0])
             locs_y.append(top_left[1])
             print(top_left)
@@ -105,11 +107,11 @@ def main():
     plt.xlabel("X Pixel Shift")
     #plt.show()
     #plt.savefig("shifts.png")
-    npavg = np.average(frames, axis=0)
-    print(npavg)
-    cv2.imshow("Shifted", np.sum(frames, axis=0))
+    npsum = np.sum(frames, axis=0)
+    print(npsum)
+    cv2.imshow("Shifted", np.sum(frames, axis=0) * 3)
     print(f0)
-    print(npavg.shape)
+    print(npsum.shape)
     print(f0.shape)
     cv2.imshow("Og", f0)
     cv2.waitKey(0)
