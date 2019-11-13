@@ -13,12 +13,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import sys
 
-def warpImg(img, xshift, yshift):
-    return 
-
-
 def main():
-    cap = cv2.VideoCapture('IMG_0961.MOV')
+    cap = cv2.VideoCapture('IMG_0955.MOV')
  
     # Check if camera opened successfully
     if (cap.isOpened()== False): 
@@ -31,32 +27,34 @@ def main():
     frames = []
     tl = []
     f0 = []
+    cnt = 0
+    method = eval('cv2.TM_CCOEFF_NORMED')
+
     # Read until video is completed
     while(cap.isOpened()):
         # # Capture frame-by-frame
         ret, f = cap.read()
 
         if ret == True:
-            frame = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
-            # Display the resulting frame
-            #cv2.imshow('Frame',frame)
-            img = frame
-            template = cv2.imread('template5.png',0)
+            img = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
+            template = cv2.imread('template_new.png',0)
             w, h = template.shape[::-1]
             print("{},{}".format(w,h))
 
-            meth = 'cv2.TM_CCOEFF_NORMED'
-            method = eval(meth)
-            # Apply template Matching
             # window bounds in the old movie
-            #img[270:700,135:640]
+            # Rockstar
+            tlx, tly, brx, bry = 270, 135, 700, 640
+            # Mochi
+            #tlx, tly, brx, bry = 200, 300, 600, 800
             # window bounds in the new movie
-            tlx, tly, brx, bry = 150, 300, 540, 700
-            print(img.shape)
-            print(template.shape)
+            #tlx, tly, brx, bry = 150, 300, 540, 700
+
+            # if no window is used
+            #res = cv2.matchTemplate(img,template,method)
             res = cv2.matchTemplate(img[tlx:brx, tly:bry],template,method)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            top_left = (max_loc[0]+tlx, max_loc[1]+tly)
+            top_left = (max_loc[0]+tly, max_loc[1]+tlx)
+            # if no window is used
             #top_left = (max_loc[0], max_loc[1])
             if len(tl) == 0:
                 tl += [top_left[0], top_left[1]]
@@ -70,29 +68,22 @@ def main():
             locs_y.append(top_left[1])
             print(top_left)
             print(bottom_right)
-            #cv2.rectangle(img,(135,270), (640,700), 255, 2)
-            '''
-            cv2.rectangle(img,top_left, bottom_right, 255, 2)
-            #cv2.rectangle(f,(135,270), (640,700), (0,0,255), 2)
-            #cv2.rectangle(f,top_left, bottom_right, (255,0,0), 2)
-            #cv2.imwrite("annotated_im.jpg", f)
-            #sys.exit(1)
-            #plt.subplot(121)
-            #plt.imshow(f)
-            plt.imshow(res,cmap = 'gray')
-            plt.xlabel("Pixel location in X Direction")
-            plt.ylabel("Pixel location in Y Direction")
-            plt.colorbar()'''
-            '''plt.title('Matching Result') #, plt.xticks([]), plt.yticks([])
-            plt.subplot(122),plt.imshow(img,cmap = 'gray')
-            plt.title('Detected Point'), plt.xticks([]), plt.yticks([])
-            plt.suptitle(meth)'''
-            #plt.savefig('cross_cor.png')
-            '''
-            plt.show()
-            #cv2.waitKey(0) #Press Enter for Next Object in the Image
-            sys.exit()
-            '''
+
+            if cnt == 0:
+                cv2.imwrite("gray0.png", img)
+                try:
+                    #cv2.rectangle(f,(tly,tlx), (bry,brx), (0,0,255), 2)
+                    cv2.rectangle(f,top_left, bottom_right, (255,0,0), 2)
+                    cv2.imwrite("annotated_im.jpg", f)
+                except:
+                    pass
+                plt.imshow(res,cmap = 'gray')
+                plt.xlabel("Pixel location in X Direction")
+                plt.ylabel("Pixel location in Y Direction")
+                plt.colorbar()
+                plt.savefig('cross_cor.png')
+                plt.clf()
+            cnt += 1
         else: 
             break
 
@@ -105,19 +96,15 @@ def main():
     plt.plot(locs_x, locs_y)
     plt.ylabel("Y Pixel Shift")
     plt.xlabel("X Pixel Shift")
-    #plt.show()
-    #plt.savefig("shifts.png")
+    plt.savefig("shifts.png")
     npavg = np.average(frames, axis=0)
     print(npavg)
-    # So it appears good in the displayed image
-    cv2.imshow("Shifted", np.sum(frames, axis=0) * 3)
-    # What's actually written should involve the average of the pixels
     cv2.imwrite("shifted.png", npavg)
-    print(f0)
+    '''print(f0)
     print(npavg.shape)
     print(f0.shape)
     cv2.imshow("Og", f0)
-    cv2.waitKey(0)
+    cv2.waitKey(0)'''
 
 if __name__ == "__main__":
     main()
