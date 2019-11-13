@@ -32,7 +32,7 @@ def main():
 
     # Read until video is completed
     while(cap.isOpened()):
-        # # Capture frame-by-frame
+        # Capture frame-by-frame
         ret, f = cap.read()
 
         if ret == True:
@@ -72,7 +72,7 @@ def main():
             if cnt == 0:
                 cv2.imwrite("gray0.png", img)
                 try:
-                    #cv2.rectangle(f,(tly,tlx), (bry,brx), (0,0,255), 2)
+                    cv2.rectangle(f,(tly,tlx), (bry,brx), (0,0,255), 2)
                     cv2.rectangle(f,top_left, bottom_right, (255,0,0), 2)
                     cv2.imwrite("annotated_im.jpg", f)
                 except:
@@ -100,11 +100,6 @@ def main():
     npavg = np.average(frames, axis=0)
     print(npavg)
     cv2.imwrite("shifted.png", npavg)
-    '''print(f0)
-    print(npavg.shape)
-    print(f0.shape)
-    cv2.imshow("Og", f0)
-    cv2.waitKey(0)'''
 
 if __name__ == "__main__":
     main()
