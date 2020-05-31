@@ -1,9 +1,9 @@
-""" hw2.py
-HOMEWORK 2: SYNTHETIC APERTURE IMAGING
+""" main.py
+Synthetic Aperature Imaging
 
 Author(s):
-    Jeffrey Lung
     Roy Lin
+    Jeffrey Lung
 
 Date Created:
     November 3rd, 2019
